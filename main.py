@@ -2,6 +2,8 @@ import pygame
 import random
 import math
 from pygame import mixer
+import pickle
+import os
 
 # Initialize the pygame
 pygame.init()
@@ -36,18 +38,28 @@ textX = 10
 textY = 5
 
 
-def show_score(x,y):
-    score = font.render("Score: " + str(score_value), True, (255,255,255))
+def show_score(x, y):
+    score = font.render("Score: " + str(score_value), True, (255, 255, 255))
     screen.blit(score, (x, y))
 
+best_score = pickle.load(open("best_score.dat", "rb"))
+
+def show_best_score(x, y):
+    score = font.render("Best: " + str(best_score), True, (255, 255, 255))
+    screen.blit(score, (x, y))
 
 def game_over_text():
-    over_text = over_font.render("GAME OVER", True, (255,255,255))
+    over_text = over_font.render("GAME OVER", True, (255, 255, 255))
     screen.blit(over_text, (250, 250))
+
+def new_best_text():
+    new_record = over_font.render("NEW RECORD!", True, (255, 255, 255))
+    screen.blit(new_record, (250, 300))
+
 
 # Game speed
 playerSpeed = 0.5
-enemySpeed = 0.8
+enemySpeed = 1
 
 # Player
 playerImg = pygame.image.load('player.png')
@@ -61,7 +73,7 @@ enemyX = []
 enemyY = []
 enemyX_change = []
 enemyY_change = []
-num_of_enemies = 6
+num_of_enemies = 12
 
 for i in range(num_of_enemies):
     enemyImg.append(pygame.image.load('enemy.png'))
@@ -132,7 +144,6 @@ while running:
                     laserX = playerX
                     fire_laser(laserX, laserY)
 
-
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 playerX_change = 0
@@ -152,6 +163,9 @@ while running:
             for j in range(num_of_enemies):
                 enemyY[j] = 2000
             game_over_text()
+            new_best_text()
+            if score_value > best_score:
+                pickle.dump(score_value, open("best_score.dat", "wb"))
             break
 
         enemyX[i] += enemyX_change[i]
@@ -192,6 +206,9 @@ while running:
 
     # SHowe score
     show_score(textX, textY)
+
+    show_best_score(10,30)
+
 
     # Update display
     pygame.display.update()
